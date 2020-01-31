@@ -22,6 +22,15 @@ io.on('connection', (socket) => {
 		count++;
 		io.emit('countUpdated', count);
 	});
+	socket.broadcast.emit('new_joinee', 'New Person have joined the chat room');
+
+	socket.emit('welcome_msg', 'Welcome to Chatify');
+	socket.on('new_msg', (msg) => {
+		io.emit('broadcast_msg', msg);
+	});
+	socket.on('disconnect', () => {
+		io.emit('message', 'A Person have left the Chat Room');
+	});
 });
 
 server.listen(port, () => {
