@@ -35,7 +35,9 @@
 
     <q-page-container>
       <q-btn color="amber" glossy text-color="black" push label="Second" @click="increment" />
-      <div>{{count}}</div>
+      <div>{{ count }}</div>
+
+      <q-btn color="red" glossy text-color="black" push label="Location" @click="send_location" />
 
       <div class="q-pa-md">
         <q-card class="my-card">
@@ -43,13 +45,13 @@
 
           <q-card-section>
             <div class="text-h6">Slingshot Inc.</div>
-            <div class="text-subtitle2">{{welcome_msg}}</div>
+            <div class="text-subtitle2">{{ welcome_msg }}</div>
           </q-card-section>
         </q-card>
       </div>
 
-      <div v-if="joinee_msg" class="joinee_disconnect">{{joinee_msg}}</div>
-      <div v-if="disconnectionMsg" class="joinee_disconnect">{{disconnectionMsg}}</div>
+      <div v-if="joinee_msg" class="joinee_disconnect">{{ joinee_msg }}</div>
+      <div v-if="disconnectionMsg" class="joinee_disconnect">{{ disconnectionMsg }}</div>
 
       <form @submit.prevent="send_msg">
         <div class="form-group">
@@ -71,13 +73,31 @@
           <div style="width: 100%; max-width: 400px">
             <q-chat-message :label="todyDate" />
 
-            <q-chat-message
+            <!-- <q-chat-message
               name="me"
               avatar="https://cdn.quasar.dev/img/avatar4.jpg"
               :text="messageList"
               sent
               stamp="7 minutes ago"
-            />
+            />-->
+            <div v-if="locationMsgArr.length > 0">
+              <div v-for="i in locationMsgArr" :key="locationMsgArr[i]">
+                <a
+                  target="_blank"
+                  v-if="i.toString().includes('https://google.com/maps')"
+                  :href="i"
+                >This is my Location</a>
+                <div v-else>{{ i }}</div>
+              </div>
+            </div>
+            <!-- <q-chat-message
+              v-if="locationMsgArr.length > 0"
+              name="me"
+              avatar="https://cdn.quasar.dev/img/avatar4.jpg"
+              :text="locationMsgArr"
+              sent
+              stamp="7 minutes ago"
+            />-->
             <q-chat-message
               name="Jane"
               avatar="https://cdn.quasar.dev/img/avatar3.jpg"
@@ -95,11 +115,15 @@
 
 <script>
 import io from "socket.io-client";
+import VueSimpleAlert from "vue-simple-alert";
 
 export default {
   name: "MyLayout",
   data() {
     return {
+      locationMsgArr: [],
+      locationMsg: "",
+      LocationUser: {},
       disconnectionMsg: null,
       joinee_msg: null,
       messageList: [],
@@ -111,45 +135,69 @@ export default {
     };
   },
   methods: {
+    send_location() {
+      if (!navigator.geolocation) {
+        return alert("Your browser does not support Location Support");
+      }
+      navigator.geolocation.getCurrentPosition(position => {
+        let preData = position.coords;
+        let { longitude, latitude } = preData;
+        let data = { longitude, latitude };
+        // this.socket.emit("sendLocation", data);
+        this.socket.emit(
+          "sendLocation",
+          `https://google.com/maps?q=${data.latitude},${data.longitude}`,
+          response => {
+            if (response) {
+              this.locationMsg = response;
+              this.locationMsgArr.push(response);
+            }
+          }
+        );
+      });
+    },
     send_msg(e) {
+      var self = this;
       console.log(e.target);
-      this.socket.emit("new_msg", this.msg_text);
-      this.msg_text = "";
+      self.socket.emit("new_msg", this.msg_text, error => {
+        if (error) {
+          // return;
+          self.$alert("The Message was not sent");
+        } else {
+          console.log("message is delivered successfully");
+        }
+      });
+      self.msg_text = "";
     },
     increment() {
-      // this.count++;
-      console.log("clicked");
       this.socket.emit("increment");
     }
   },
   created() {
     this.socket = io("http://localhost:3000");
     this.socket.on("countUpdated", count => {
-      console.log(`the count has been updated: ${count}`);
       this.count = count;
     });
 
     this.socket.on("welcome_msg", msg => {
       this.welcome_msg = msg;
-      console.log(this.welcome_msg);
     });
 
     this.socket.on("broadcast_msg", broadcast_msg => {
-      this.messageList.push(broadcast_msg);
+      this.locationMsgArr.push(broadcast_msg);
     });
 
     this.socket.on("new_joinee", new_joinee_msg => {
       this.joinee_msg = new_joinee_msg;
-      // setTimeout(5000, () => {
-      //   this.joinee_msg = null;
-      // });
     });
 
-    this.socket.on("disconnect_message", msg => {
+    this.socket.on("disconnectMessage", msg => {
       this.disconnectionMsg = msg;
-      // setTimeout(5000, () => {
-      //   this.disconnectionMsg = null;
-      // });
+    });
+
+    this.socket.on("LocationUser", msg => {
+      this.LocationUser = msg;
+      console.log(this.LocationUser);
     });
   },
   mounted() {},
