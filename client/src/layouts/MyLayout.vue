@@ -10,15 +10,22 @@
           icon="menu"
           aria-label="Menu"
         />
+        <!-- <q-tabs align="left">
+          <q-route-tab to="/" label="Chatify" />
+        </q-tabs>-->
 
-        <q-toolbar-title>Chatify</q-toolbar-title>
+        <!-- <q-route-tab to="/" label="Chatify" /> -->
 
+        <q-toolbar-title>
+          <span>
+            <router-link class="mainTitle" to="/">Chatify</router-link>
+          </span>
+        </q-toolbar-title>
         <div>Chatify v 1.0.0</div>
       </q-toolbar>
       <q-tabs align="left">
-        <q-route-tab to="/page1" label="Page One" />
+        <q-route-tab :to="{path:'/userlogin', params: { userId: 123 }}" label="User Login" />
         <q-route-tab to="/page2" label="Page Two" />
-        <q-route-tab to="/page3" label="Page Three" />
       </q-tabs>
     </q-header>
 
@@ -39,7 +46,7 @@
     </q-drawer>
 
     <q-page-container>
-      <q-page>
+      <q-page class="flex flex-center">
         <div class="container">
           <q-btn color="amber" glossy text-color="black" push label="Second" @click="increment" />
           <div>{{ count }}</div>
@@ -129,6 +136,7 @@
 import io from "socket.io-client";
 import VueSimpleAlert from "vue-simple-alert";
 import moment from "moment";
+import socket from "../assets/js/socket";
 
 export default {
   name: "MyLayout",
@@ -143,7 +151,7 @@ export default {
       messageList: [],
       msg_text: "",
       welcome_msg: null,
-      socket: {},
+      socket: socket,
       count: 0,
       leftDrawerOpen: false
     };
@@ -194,8 +202,8 @@ export default {
       this.socket.emit("increment");
     }
   },
+  mounted() {},
   created() {
-    this.socket = io("http://localhost:3000");
     this.socket.on("countUpdated", count => {
       this.count = count;
     });
@@ -233,7 +241,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style >
 @import url("https://fonts.googleapis.com/css?family=Josefin+Sans:400,600&display=swap");
 
 .my-card,
@@ -248,6 +256,11 @@ input {
 .my-card {
   width: 100%;
   max-width: 500px;
+}
+
+.mainTitle {
+  text-decoration: none;
+  color: white;
 }
 </style>
 

@@ -1,7 +1,7 @@
 <template>
-  <q-page class="flex flex-center">
+  <!-- <q-page class="flex flex-center">
     <img alt="Quasar logo" src="~assets/quasar-logo-full.svg" />
-  </q-page>
+  </q-page>-->
 </template>
 
 <script>

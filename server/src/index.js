@@ -60,6 +60,10 @@ io.on("connection", socket => {
     }
     io.emit("LocationUser", data);
   });
+
+  socket.on("join", ({ name, room }) => {
+    console.log(name, room);
+  });
 });
 
 server.listen(port, () => {
