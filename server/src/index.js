@@ -4,6 +4,10 @@ const socketio = require("socket.io");
 const path = require("path");
 const http = require("http");
 const Filter = require("bad-words");
+const messages = require("./utils/messages");
+
+// new instance of class "Messages" from messages.js
+const messagesClass = new messages();
 
 const server = http.createServer(app);
 const io = socketio(server);
@@ -26,16 +30,22 @@ io.on("connection", socket => {
     io.emit("countUpdated", count);
   });
 
-  socket.broadcast.emit("new_joinee", "New Person have joined the chat room");
+  socket.broadcast.emit(
+    "new_joinee",
+    messagesClass.generateMessage(" New Person have joined the chat room")
+  );
 
-  socket.emit("welcome_msg", "Welcome to Chatify");
+  socket.emit(
+    "welcome_msg",
+    messagesClass.generateMessage("Welcome To Chatify App")
+  );
 
   socket.on("new_msg", (msg, callback) => {
     const filter = new Filter();
     if (filter.isProfane(msg)) {
       return callback("The message was not delivered sucessfully");
     }
-    io.emit("broadcast_msg", msg);
+    io.emit("broadcast_msg", messagesClass.generateMessage(msg));
     callback();
   });
 
@@ -46,7 +56,7 @@ io.on("connection", socket => {
 
   socket.on("sendLocation", (data, callback) => {
     if (data) {
-      callback(data);
+      callback(messagesClass.generateUrl(data));
     }
     io.emit("LocationUser", data);
   });
