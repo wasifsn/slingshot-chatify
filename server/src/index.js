@@ -73,9 +73,10 @@ io.on("connection", socket => {
       if (filter.isProfane(msg)) {
         return callback("The message was not delivered sucessfully");
       }
-      socket
-        .to(user.room)
-        .emit("broadcast_msg", messagesClass.generateMessage(msg));
+      io.to(user.room).emit(
+        "broadcast_msg",
+        messagesClass.generateMessage(msg)
+      );
       callback();
     } else {
       callback("The message was not delivered sucessfully");
@@ -91,6 +92,10 @@ io.on("connection", socket => {
         "disconnectMessage",
         messagesClass.generateMessage(`${user.name} have left the Chat Room!`)
       );
+      io.to(user.room).emit("roomData", {
+        room: user.room,
+        roomData: getUsersInRoom(user.room)
+      });
     }
   });
 
