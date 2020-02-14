@@ -29,9 +29,16 @@
       </q-tabs>
     </q-header>
 
-    <q-drawer v-model="leftDrawerOpen" show-if-above bordered elevated content-class="bg-grey-2">
+    <q-drawer
+      dark
+      v-model="leftDrawerOpen"
+      show-if-above
+      bordered
+      elevated
+      content-class="bg-grey-2"
+    >
       <q-list bordered padding>
-        <q-item-label header>Essential Links</q-item-label>
+        <q-item-label header>Chat Room Data</q-item-label>
 
         <!-- <q-item clickable tag="a" target="_blank" href="https://chat.quasar.dev">
           <q-item-section avatar>
