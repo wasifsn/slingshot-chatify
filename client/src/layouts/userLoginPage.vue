@@ -2,15 +2,15 @@
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
       <q-toolbar>
-        <q-btn
+        <!-- <q-btn
           flat
           dense
           round
           @click="leftDrawerOpen = !leftDrawerOpen"
           icon="menu"
           aria-label="Menu"
-        />
-        <q-toolbar-title>
+        />-->
+        <q-toolbar-title class="ml-5">
           <span>
             <router-link class="mainTitle" to="/">Chatify</router-link>
           </span>
@@ -18,13 +18,12 @@
         <div>Chatify v 1.0.0</div>
       </q-toolbar>
       <q-tabs align="left">
-        <q-route-tab to="/userlogin" label="User Login" />
-        <q-route-tab to="/page2" label="Page Two" />
-        <q-route-tab to="/page3" label="Page Three" />
+        <q-route-tab to="/" label="User Login" />
+        <q-route-tab to="/chat" label="Chat Page" />
       </q-tabs>
     </q-header>
 
-    <q-drawer v-model="leftDrawerOpen" show-if-above bordered elevated content-class="bg-grey-2">
+    <!-- <q-drawer v-model="leftDrawerOpen" show-if-above bordered elevated content-class="bg-grey-2">
       <q-list>
         <q-item-label header>Essential Links</q-item-label>
 
@@ -38,11 +37,11 @@
           </q-item-section>
         </q-item>
       </q-list>
-    </q-drawer>
+    </q-drawer>-->
 
     <q-page-container>
       <q-page class="flex flex-center">
-        <div class="q-pa-md" style="max-width: 400px">
+        <div class="q-pa-md form_comp" style="max-width: 400px">
           <q-card-section>
             <div class="text-h6">Lets JOIN!!</div>
           </q-card-section>
@@ -88,6 +87,7 @@ export default {
   name: "userLoginPage",
   data() {
     return {
+      users: [],
       socket: socket,
       accept: "",
       name: "",
@@ -97,18 +97,21 @@ export default {
   },
   methods: {
     onSubmit() {
+      let self = this;
       let name = this.name;
       let room = this.chatRoom;
-      this.$router.push("/");
-      this.socket.emit("join", { name, room });
+      this.socket.emit("join", { name, room }, error => {
+        if (error) {
+          alert(error);
+        } else {
+          this.$router.push("/");
+        }
+      });
     },
     onReset() {
       this.name = "";
       this.chatRoom = "";
     }
-  },
-  created() {
-    this.socket = io("http://localhost:3000");
   }
 };
 </script>
@@ -133,6 +136,10 @@ input {
 .mainTitle {
   text-decoration: none;
   color: white;
+}
+
+.form_comp {
+  border: 1px solid lightgrey;
 }
 </style>
 

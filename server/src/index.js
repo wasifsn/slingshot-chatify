@@ -29,6 +29,10 @@ let count = 0;
 
 io.on("connection", socket => {
   console.log("new Web socket connection");
+  io.emit(
+    "welcome_msg",
+    messagesClass.generateMessage("Welcome To Chatify App")
+  );
   // Events when a user joins a chat room
   socket.on("join", ({ name, room }, callback) => {
     const { error, user } = addUser({ id: socket.id, name, room });

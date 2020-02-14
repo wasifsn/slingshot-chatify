@@ -24,22 +24,33 @@
         <div>Chatify v 1.0.0</div>
       </q-toolbar>
       <q-tabs align="left">
-        <q-route-tab :to="{path:'/userlogin', params: { userId: 123 }}" label="User Login" />
-        <q-route-tab to="/page2" label="Page Two" />
+        <q-route-tab :to="{path:'/', params: { userId: 123 }}" label="User Login" />
+        <q-route-tab to="/chat" label="Chat Page" />
       </q-tabs>
     </q-header>
 
     <q-drawer v-model="leftDrawerOpen" show-if-above bordered elevated content-class="bg-grey-2">
-      <q-list>
+      <q-list bordered padding>
         <q-item-label header>Essential Links</q-item-label>
 
-        <q-item clickable tag="a" target="_blank" href="https://chat.quasar.dev">
+        <!-- <q-item clickable tag="a" target="_blank" href="https://chat.quasar.dev">
           <q-item-section avatar>
             <q-icon name="chat" />
           </q-item-section>
           <q-item-section>
             <q-item-label>Discord Chat Channel</q-item-label>
             <q-item-label caption>chat.quasar.dev</q-item-label>
+          </q-item-section>
+        </q-item>-->
+
+        <q-item clickable tag="div" v-for="(room,i) in rooms" :key="i">
+          <q-item-section avatar>
+            <q-icon name="chat" />
+          </q-item-section>
+
+          <q-item-section>
+            <q-item-label class>Users in Chat Room: {{room}}</q-item-label>
+            <q-item-label caption v-for="(data,j) in roomData" :key="j">{{data.name}}</q-item-label>
           </q-item-section>
         </q-item>
       </q-list>
@@ -142,6 +153,8 @@ export default {
   name: "MyLayout",
   data() {
     return {
+      rooms: [],
+      roomData: [],
       moment: moment,
       locationMsgArr: [],
       locationMsg: "",
@@ -180,6 +193,8 @@ export default {
             if (response) {
               this.locationMsg = response;
               this.locationMsgArr.push(response);
+            } else {
+              alert("Something went wrong the Location is not Sent!");
             }
           }
         );
@@ -191,7 +206,7 @@ export default {
       self.socket.emit("new_msg", this.msg_text, error => {
         if (error) {
           // return;
-          self.$alert("The Message was not sent");
+          alert("The Message was not sent");
         } else {
           console.log("message is delivered successfully");
         }
@@ -200,6 +215,7 @@ export default {
     },
     increment() {
       this.socket.emit("increment");
+      console.log(this.count);
     }
   },
   mounted() {},
@@ -209,6 +225,7 @@ export default {
     });
 
     this.socket.on("welcome_msg", data => {
+      console.log(data);
       this.welcome_msg = data.text;
       let dum = data.createdAt;
     });
@@ -222,12 +239,19 @@ export default {
     });
 
     this.socket.on("disconnectMessage", msg => {
-      this.disconnectionMsg = msg;
+      this.disconnectionMsg = msg.text;
     });
 
     this.socket.on("LocationUser", msg => {
       this.LocationUser = msg;
       console.log(this.LocationUser);
+    });
+
+    this.socket.on("roomData", ({ room, roomData }) => {
+      this.rooms.push(room);
+      this.roomData = roomData;
+
+      console.log(this.rooms, this.roomData);
     });
   },
   mounted() {},
