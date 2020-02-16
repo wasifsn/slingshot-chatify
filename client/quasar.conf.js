@@ -7,7 +7,7 @@ module.exports = function(ctx) {
     // app boot file (/src/boot)
     // --> boot files are part of "main.js"
     // https://quasar.dev/quasar-cli/cli-documentation/boot-files
-    boot: [],
+    boot: ["imports"],
 
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-css
     css: ["app.css"],
@@ -69,12 +69,12 @@ module.exports = function(ctx) {
     devServer: {
       https: false,
       port: 8080,
-      open: true, // opens browser window automatically
-      proxy: {
-        "/": {
-          target: "http://localhost:3000"
-        }
-      }
+      open: true // opens browser window automatically
+      // proxy: {
+      //   "/": {
+      //     target: "http://localhost:3000"
+      //   }
+      // }
     },
 
     // animations: 'all', // --- includes all animations

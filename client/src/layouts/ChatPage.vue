@@ -21,10 +21,15 @@
             <router-link class="mainTitle" to="/">Chatify</router-link>
           </span>
         </q-toolbar-title>
-        <div>Chatify v 1.0.0</div>
+        <q-toolbar-title />
+        <div>Slingshot Inc.</div>
+        <q-btn flat round dense icon="more_vert" />
       </q-toolbar>
       <q-tabs align="left">
-        <q-route-tab :to="{path:'/', params: { userId: 123 }}" label="User Login" />
+        <q-route-tab
+          :to="{ path: '/', params: { userId: 123 } }"
+          label="User Login"
+        />
         <q-route-tab to="/chat" label="Chat Page" />
       </q-tabs>
     </q-header>
@@ -50,14 +55,16 @@
           </q-item-section>
         </q-item>-->
 
-        <q-item clickable tag="div" v-for="(room,i) in rooms" :key="i">
+        <q-item clickable tag="div" v-for="(room, i) in rooms" :key="i">
           <q-item-section avatar>
             <q-icon name="chat" />
           </q-item-section>
 
           <q-item-section>
-            <q-item-label class>Users in Chat Room: {{room}}</q-item-label>
-            <q-item-label caption v-for="(data,j) in roomData" :key="j">{{data.name}}</q-item-label>
+            <q-item-label class>Users in Chat Room: {{ room }}</q-item-label>
+            <q-item-label caption v-for="(data, j) in roomData" :key="j">{{
+              data.name
+            }}</q-item-label>
           </q-item-section>
         </q-item>
       </q-list>
@@ -66,13 +73,18 @@
     <q-page-container>
       <q-page class="flex flex-center">
         <div class="container">
-          <q-btn color="amber" glossy text-color="black" push label="Second" @click="increment" />
+          <q-btn
+            color="amber"
+            glossy
+            text-color="black"
+            push
+            label="Second"
+            @click="increment"
+          />
           <div>{{ count }}</div>
 
           <div class="q-pa-md">
             <q-card class="my-card">
-              <q-parallax src="https://cdn.quasar.dev/img/parallax1.jpg" :height="150" />
-
               <q-card-section>
                 <div class="text-h6">Slingshot Inc.</div>
                 <div class="text-subtitle2">{{ welcome_msg }}</div>
@@ -80,8 +92,12 @@
             </q-card>
           </div>
 
-          <div v-if="joinee_msg" class="joinee_disconnect">{{ joinee_msg }}</div>
-          <div v-if="disconnectionMsg" class="joinee_disconnect">{{ disconnectionMsg }}</div>
+          <div v-if="joinee_msg" class="joinee_disconnect">
+            {{ joinee_msg }}
+          </div>
+          <div v-if="disconnectionMsg" class="joinee_disconnect">
+            {{ disconnectionMsg }}
+          </div>
           <div class="messagelist">
             <div class="q-pa-md row justify-center">
               <div style="width: 100%; max-width: 400px">
@@ -95,12 +111,21 @@
               stamp="7 minutes ago"
                 />-->
                 <div v-if="locationMsgArr.length > 0">
-                  <div v-for="i in locationMsgArr" :key="locationMsgArr[i.text]">
-                    <span v-if="i.text.toString().includes('https://google.com/maps')">
+                  <div
+                    v-for="i in locationMsgArr"
+                    :key="locationMsgArr[i.text]"
+                  >
+                    <span
+                      v-if="
+                        i.text.toString().includes('https://google.com/maps')
+                      "
+                    >
                       <a target="_blank" :href="i.text">This is my Location</a>
-                      - {{messageReceivedTime(i)}}
+                      - {{ messageReceivedTime(i) }}
                     </span>
-                    <div v-else>{{ i.text }} - {{ messageReceivedTime(i) }}</div>
+                    <div v-else>
+                      {{ i.text }} - {{ messageReceivedTime(i) }}
+                    </div>
                   </div>
                 </div>
                 <!-- <q-chat-message
@@ -122,7 +147,9 @@
           </div>
           <form @submit.prevent="send_msg">
             <div class="form-group">
-              <label for="exampleInputEmail1">Please type in your Instant Message</label>
+              <label for="exampleInputEmail1"
+                >Please type in your Instant Message</label
+              >
               <input
                 type="text"
                 class="form-control main_ipt_box"
@@ -152,7 +179,6 @@
 
 <script>
 import io from "socket.io-client";
-import VueSimpleAlert from "vue-simple-alert";
 import moment from "moment";
 import socket from "../assets/js/socket";
 
@@ -178,6 +204,16 @@ export default {
   },
   computed: {},
   methods: {
+    notificationMessages(text, type) {
+      this.$notify({
+        position: "bottom",
+        group: "userNotification",
+        type: type,
+        title: "User Notification",
+        text: text,
+        duration: 5000
+      });
+    },
     messageReceivedTime(i) {
       return moment(i.createdAt)
         .startOf()
@@ -186,7 +222,7 @@ export default {
     },
     send_location() {
       if (!navigator.geolocation) {
-        return alert("Your browser does not support Location Support");
+        return this.$alert("Your browser does not support Location Support");
       }
       navigator.geolocation.getCurrentPosition(position => {
         let preData = position.coords;
@@ -201,7 +237,7 @@ export default {
               this.locationMsg = response;
               this.locationMsgArr.push(response);
             } else {
-              alert("Something went wrong the Location is not Sent!");
+              this.$alert("Something went wrong the Location is not Sent!");
             }
           }
         );
@@ -212,8 +248,7 @@ export default {
       console.log(e.target);
       self.socket.emit("new_msg", this.msg_text, error => {
         if (error) {
-          // return;
-          alert("The Message was not sent");
+          this.$alert("The Message was not sent");
         } else {
           console.log("message is delivered successfully");
         }
@@ -243,10 +278,12 @@ export default {
 
     this.socket.on("new_joinee", new_joinee_msg => {
       this.joinee_msg = new_joinee_msg.text;
+      this.notificationMessages(new_joinee_msg.text, "");
     });
 
     this.socket.on("disconnectMessage", msg => {
       this.disconnectionMsg = msg.text;
+      this.notificationMessages(msg.text, "warn");
     });
 
     this.socket.on("LocationUser", msg => {
@@ -261,7 +298,9 @@ export default {
       console.log(this.rooms, this.roomData);
     });
   },
-  mounted() {},
+  mounted() {
+    // this.notificationMessages();
+  },
   computed: {
     todyDate: function() {
       let date = new Date();
@@ -272,7 +311,7 @@ export default {
 };
 </script>
 
-<style >
+<style>
 @import url("https://fonts.googleapis.com/css?family=Josefin+Sans:400,600&display=swap");
 
 .my-card,
@@ -294,4 +333,3 @@ input {
   color: white;
 }
 </style>
-

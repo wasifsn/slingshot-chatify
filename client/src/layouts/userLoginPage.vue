@@ -104,7 +104,7 @@ export default {
         if (error) {
           alert(error);
         } else {
-          this.$router.push("/");
+          this.$router.push("/chat");
         }
       });
     },
